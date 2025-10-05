@@ -45,3 +45,97 @@ This project leverages Azure services (OpenAI, AI Search, Computer Vision) to:
 
 3. Configure environment variables (see Configuration).
 4. Ensure directories ./Uploads, frames, output exist or are created automatically.
+
+## Configuration
+Create a .env file in the project root with the following:
+```plaintext
+# Azure OpenAI Resource 1 (Embeddings & Transcription)
+AZURE_OPENAI_API_KEY1=<your-key>
+AZURE_OPENAI_ENDPOINT1=<your-endpoint>
+AZURE_OPENAI_API_VERSION_EMBEDDING1=2023-12-01-preview
+AZURE_OPENAI_API_VERSION_AUDIO1=2024-05-01-preview
+
+# Azure OpenAI Resource 2 (GPT-4o for Evaluations & Stories)
+AZURE_OPENAI_API_KEY2=<your-key>
+AZURE_OPENAI_ENDPOINT2=<your-endpoint>
+AZURE_OPENAI_API_VERSION_GPT4O=2024-12-01-preview
+AZURE_DEPLOYMENT_GPT4O=gpt-4o
+
+# Azure AI Search
+AZURE_SEARCH_ENDPOINT1=<your-endpoint>
+AZURE_SEARCH_ADMIN_KEY1=<your-key>
+AZURE_SEARCH_INDEX_NAME1=audio_index
+AZURE_SEARCH_INDEX_NAME2=frames_index
+AZURE_SEARCH_INDEX_NAME3=gpt_index
+AZURE_SEARCH_INDEX_NAME4=cumulative_story_index
+
+# Azure Computer Vision
+AZURE_AI_VISION_API_KEY=<your-key>
+AZURE_AI_VISION_REGION=<your-region>
+AZURE_AI_VISION_ENDPOINT=<your-endpoint>
+
+# Directories & Outputs
+IMAGES_DIR=frames
+OUTPUT_JSON=output/frameVectors.json
+FRAME_DESCRIPTIONS=output/frame_descriptions.jsonl
+FRAME_VECTORS=output/frame_descriptions_with_vecs.jsonl
+```
+
+Obtain keys and endpoints from the Azure portal.
+
+## Usage
+Processing a Video
+Run the video processing pipeline:
+```bash
+  python main.py path/to/video.mp4
+```
+
+- Generates a unique video_id.
+- Extracts frames at 2 FPS, processes audio, and generates descriptions.
+= Indexes data in Azure AI Search.
+- Launches the chatbot for querying.
+
+## Running the Streamlit App
+Start the Streamlit interface:
+```bash
+  streamlit run app.py
+```
+- Upload a video or enter an existing video_id.
+- Query video details (e.g., "What happened at 30 seconds?").
+- Receive text answers and video clips (if ffmpeg is installed).
+
+## Project Structure
+
+- app.py: Streamlit UI for video upload and chatbot interaction.
+- main.py: Orchestrates video processing (frames, audio, descriptions, stories).
+- vid.py: Extracts frames at 2 FPS.
+- audio.py: Extracts, splits (10s), transcribes, and indexes audio.
+- frames.py: Embeds frames in 10s windows using Azure Computer Vision.
+- gpt_desc.py: Generates visual descriptions for 10s frame windows.
+- cumulative_story.py: Builds coherent narratives across segments.
+- chatbot.py: Handles queries, searches indexes, and generates answers/clips.
+
+## Notes
+
+- Ensure Azure credentials and endpoints are valid.
+- Install FFmpeg for video clipping (pip install ffmpeg-python and FFmpeg binary).
+- Logs are saved in *.log files for debugging.
+- Indexes are managed automatically but can be configured via Azure portal.
+
+## Troubleshooting
+
+- Dependency Errors: Verify requirements.txt and install FFmpeg if needed.
+- Azure Issues: Check .env for correct keys/endpoints.
+- No Video Clips: Ensure ffmpeg-python and FFmpeg binary are installed.
+- Index Problems: Confirm index names and Azure Search connectivity.
+
+## 📜 License
+
+This project is licensed under the MIT License.
+
+## 👨‍💻 Author
+
+Samyak Jain
+🔗 LinkedIn - https://www.linkedin.com/in/samyak-jain-470b7b255
+
+🔗 GitHub - https://github.com/Samyakjain2004
